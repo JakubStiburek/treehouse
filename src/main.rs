@@ -3,27 +3,48 @@ use std::io::stdin;
 #[derive(Debug)]
 struct Visitor {
     name: String,
-    greeting: String
+    action: VisitorAction,
+    age: i8,
 }
 
 impl Visitor {
-    fn new(name: &str, greeting: &str) -> Self {
+    fn new(name: &str, action: VisitorAction, age: i8) -> Self {
         Self {
             name: name.to_lowercase(),
-            greeting: greeting.to_string()
+            action,
+            age
         }
     }
     
     fn greet(&self) {
-        println!("{}", self.greeting)
+        match &self.action {
+            VisitorAction::Accept => println!("Welcome, {}!", self.name),
+            VisitorAction::AcceptWithNote { note } => {
+                println!("Welcome, {}!", self.name);
+                println!("{}", note);
+                if self.age < 18 {
+                    println!("Do not serve alcohol to {}", self.name);
+                }
+            },
+            VisitorAction::Probation => println!("{} is now a probationary member", self.name),
+            VisitorAction::Refuse => println!("Do not allow {} in!", self.name)
+        }
     }
+}
+
+#[derive(Debug)]
+enum VisitorAction {
+    Accept,
+    AcceptWithNote { note: String },
+    Refuse,
+    Probation,
 }
 
 fn main() {
     let mut club_members = vec![
-        Visitor::new("bert", "Hello, Bert."),
-        Visitor::new("carl", "Wassup, Carl!"),
-        Visitor::new("hugo", "Who invited Hugo?")
+        Visitor::new("bert", VisitorAction::Accept, 45),
+        Visitor::new("carl", VisitorAction::AcceptWithNote{ note: String::from("Soy milk is in the fridge.")}, 30),
+        Visitor::new("hugo", VisitorAction::Refuse, 12),
     ];
     
     loop {
@@ -42,10 +63,13 @@ fn main() {
                 break;
             } else {
                 println!("{} is not on the member list.", name);
-                club_members.push(Visitor::new(&name, "New friend"));
+                club_members.push(Visitor::new(&name, VisitorAction::Probation, 0));
             }
         }
     }
+    
+    println!("The final member list:");
+    println!("{:#?}", club_members);
     
     // let has_invitation = check_invitation(club_members, &name);
     //
