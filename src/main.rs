@@ -1,5 +1,6 @@
 use std::io::stdin;
 
+#[derive(Debug)]
 struct Visitor {
     name: String,
     greeting: String
@@ -19,22 +20,31 @@ impl Visitor {
 }
 
 fn main() {
-    println!("Hi, what's your name?");
-    let name = get_user_name();
-    let club_members = [
+    let mut club_members = vec![
         Visitor::new("bert", "Hello, Bert."),
         Visitor::new("carl", "Wassup, Carl!"),
         Visitor::new("hugo", "Who invited Hugo?")
     ];
     
-    let invited =
-        club_members
-            .iter()
-            .find(|member| member.name == name);
+    loop {
+        println!("Hi, what's your name?");
     
-    match invited {
-        Some(member) => member.greet(),
-        None => println!("Get lost! You are not invited.")
+        let name = get_user_name();
+        
+        let invited =
+            club_members
+                .iter()
+                .find(|member| member.name == name);
+    
+        match invited {
+            Some(member) => member.greet(),
+            None => if name.is_empty() {
+                break;
+            } else {
+                println!("{} is not on the member list.", name);
+                club_members.push(Visitor::new(&name, "New friend"));
+            }
+        }
     }
     
     // let has_invitation = check_invitation(club_members, &name);
